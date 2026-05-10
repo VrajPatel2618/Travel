@@ -371,8 +371,8 @@ function MiniCalendar() {
         <CalendarDays className="size-5 text-cyan-500" />
       </div>
       <div className="grid grid-cols-7 gap-2 text-center text-xs font-bold text-muted-foreground">
-        {["M", "T", "W", "T", "F", "S", "S"].map((day, index) => (
-          <span key={`${day}-${index}`}>{day}</span>
+        {["M", "T", "W", "T", "F", "S", "S"].map((day) => (
+          <span key={day}>{day}</span>
         ))}
       </div>
       <div className="mt-3 grid grid-cols-7 gap-2">
@@ -382,7 +382,7 @@ function MiniCalendar() {
             className={cn(
               "aspect-square rounded-2xl text-sm font-bold transition-all hover:bg-muted",
               [2, 5, 9, 11].includes(day) &&
-                "bg-gradient-to-br from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-600/20"
+              "bg-gradient-to-br from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-600/20"
             )}
           >
             {day}
@@ -1308,8 +1308,8 @@ export function MyTripsPage() {
         {trips.isLoading
           ? Array.from({ length: 3 }, (_, index) => <Skeleton key={index} className="min-h-[360px]" />)
           : tripCards.map((trip) => (
-          <TripCard key={trip.id} trip={trip} />
-        ))}
+            <TripCard key={trip.id} trip={trip} />
+          ))}
         <Surface className="flex min-h-[360px] flex-col items-center justify-center p-8 text-center">
           <span className="grid size-14 place-items-center rounded-3xl bg-cyan-400/12 text-cyan-500">
             <Plus className="size-6" />
@@ -1634,8 +1634,8 @@ export function CityDiscoveryPage() {
         {cities.isLoading
           ? Array.from({ length: 6 }, (_, index) => <Skeleton key={index} className="h-56" />)
           : cityCards.map((destination) => (
-              <DestinationCard key={destination.id} destination={destination} />
-            ))}
+            <DestinationCard key={destination.id} destination={destination} />
+          ))}
       </div>
     </AppShell>
   );
@@ -1680,8 +1680,8 @@ export function ActivityDiscoveryPage() {
         {liveActivities.isLoading
           ? Array.from({ length: 6 }, (_, index) => <Skeleton key={index} className="h-80" />)
           : activityCards.map((activity) => (
-              <ActivityCard key={activity.id} activity={activity} />
-            ))}
+            <ActivityCard key={activity.id} activity={activity} />
+          ))}
       </div>
     </AppShell>
   );
@@ -1753,19 +1753,19 @@ export function BudgetAnalyticsPage() {
             <tbody>
               {(ledger.length
                 ? ledger.map((item) => ({
-                    name: item.name,
-                    planned: numberFrom(item.amount),
-                    actual: numberFrom(item.amount),
-                    status: item.isPaid ? "Paid" : "Planned",
-                    category: titleCase(item.category)
-                  }))
+                  name: item.name,
+                  planned: numberFrom(item.amount),
+                  actual: numberFrom(item.amount),
+                  status: item.isPaid ? "Paid" : "Planned",
+                  category: titleCase(item.category)
+                }))
                 : budgetBreakdown.map((item, index) => ({
-                    name: item.name,
-                    planned: item.value,
-                    actual: item.value + index * 42,
-                    status: index === 2 ? "Watch" : "Healthy",
-                    category: item.name
-                  }))
+                  name: item.name,
+                  planned: item.value,
+                  actual: item.value + index * 42,
+                  status: index === 2 ? "Watch" : "Healthy",
+                  category: item.name
+                }))
               ).map((item) => (
                 <tr key={`${item.category}-${item.name}`} className="border-t border-border">
                   <td className="py-4">
@@ -1806,16 +1806,16 @@ export function PackingChecklistPage() {
   const displayedGroups: PackingGroupModel[] = usingLivePacking
     ? liveGroups
     : packingGroups.map((group) => ({
-        title: group.title,
-        items: items
-          .filter((item) => item.group === group.title)
-          .map((item) => ({
-            id: item.id,
-            name: item.item,
-            quantity: 1,
-            isPacked: item.done
-          }))
-      }));
+      title: group.title,
+      items: items
+        .filter((item) => item.group === group.title)
+        .map((item) => ({
+          id: item.id,
+          name: item.item,
+          quantity: 1,
+          isPacked: item.done
+        }))
+    }));
   const displayedItems = displayedGroups.flatMap((group) => group.items);
   const done = displayedItems.filter((item) => item.isPacked).length;
   const progress = displayedItems.length ? Math.round((done / displayedItems.length) * 100) : 0;
@@ -1988,26 +1988,26 @@ export function JournalPage() {
           {journals.isLoading
             ? Array.from({ length: 2 }, (_, index) => <Skeleton key={index} className="h-64" />)
             : liveEntries.map((entry) => (
-                <Surface key={entry.id} className="overflow-hidden">
-                  <div className="grid gap-0 md:grid-cols-[240px_1fr]">
-                    <img
-                      src={entry.image}
-                      alt={entry.title}
-                      className="h-56 w-full object-cover md:h-full"
-                    />
-                    <div className="p-6">
-                      <Badge variant="outline">{entry.date}</Badge>
-                      <h3 className="mt-4 text-2xl font-black tracking-normal">{entry.title}</h3>
-                      <p className="mt-3 leading-7 text-muted-foreground">{entry.text}</p>
-                      <div className="mt-6 flex flex-wrap gap-2">
-                        <Badge variant="coral">Reminder</Badge>
-                        <Badge variant="outline">Photo attached</Badge>
-                        <Badge variant="outline">Public-ready</Badge>
-                      </div>
+              <Surface key={entry.id} className="overflow-hidden">
+                <div className="grid gap-0 md:grid-cols-[240px_1fr]">
+                  <img
+                    src={entry.image}
+                    alt={entry.title}
+                    className="h-56 w-full object-cover md:h-full"
+                  />
+                  <div className="p-6">
+                    <Badge variant="outline">{entry.date}</Badge>
+                    <h3 className="mt-4 text-2xl font-black tracking-normal">{entry.title}</h3>
+                    <p className="mt-3 leading-7 text-muted-foreground">{entry.text}</p>
+                    <div className="mt-6 flex flex-wrap gap-2">
+                      <Badge variant="coral">Reminder</Badge>
+                      <Badge variant="outline">Photo attached</Badge>
+                      <Badge variant="outline">Public-ready</Badge>
                     </div>
                   </div>
-                </Surface>
-              ))}
+                </div>
+              </Surface>
+            ))}
         </div>
       </div>
     </AppShell>
@@ -2227,11 +2227,11 @@ export function AdminDashboardPage() {
   const admin = useAdminAnalytics();
   const metrics = admin.data
     ? [
-        { label: "Users", value: admin.data.metrics.totalUsers.toLocaleString(), delta: "Live" },
-        { label: "Trips", value: admin.data.metrics.totalTrips.toLocaleString(), delta: "Live" },
-        { label: "Public shares", value: admin.data.metrics.sharedTrips.toLocaleString(), delta: "Live" },
-        { label: "Activities", value: admin.data.metrics.activities.toLocaleString(), delta: "Live" }
-      ]
+      { label: "Users", value: admin.data.metrics.totalUsers.toLocaleString(), delta: "Live" },
+      { label: "Trips", value: admin.data.metrics.totalTrips.toLocaleString(), delta: "Live" },
+      { label: "Public shares", value: admin.data.metrics.sharedTrips.toLocaleString(), delta: "Live" },
+      { label: "Activities", value: admin.data.metrics.activities.toLocaleString(), delta: "Live" }
+    ]
     : adminMetrics;
   const popularActivities = demoActivityCards.slice(0, 5);
 
