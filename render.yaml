@@ -3,7 +3,7 @@ services:
     name: traveloop-api
     runtime: docker
     dockerfilePath: ./server/Dockerfile
-    plan: starter
+    plan: free
     healthCheckPath: /health
     envVars:
       - key: NODE_ENV
