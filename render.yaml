@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: traveloop-api
+    runtime: docker
+    dockerfilePath: ./server/Dockerfile
+    plan: starter
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: DATABASE_URL
+        sync: false
+      - key: CLIENT_URL
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true

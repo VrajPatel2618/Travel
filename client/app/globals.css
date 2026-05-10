@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 214 48% 98%;
+    --foreground: 224 45% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 224 45% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 45% 12%;
+    --primary: 225 83% 33%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 218 38% 94%;
+    --secondary-foreground: 224 45% 16%;
+    --muted: 218 38% 93%;
+    --muted-foreground: 218 15% 43%;
+    --accent: 190 94% 44%;
+    --accent-foreground: 224 45% 12%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 218 32% 86%;
+    --input: 218 32% 86%;
+    --ring: 190 94% 44%;
+  }
+
+  .dark {
+    --background: 226 50% 7%;
+    --foreground: 214 42% 96%;
+    --card: 225 42% 10%;
+    --card-foreground: 214 42% 96%;
+    --popover: 225 42% 10%;
+    --popover-foreground: 214 42% 96%;
+    --primary: 221 83% 62%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 223 32% 16%;
+    --secondary-foreground: 214 42% 96%;
+    --muted: 224 31% 16%;
+    --muted-foreground: 218 17% 70%;
+    --accent: 188 95% 47%;
+    --accent-foreground: 224 45% 9%;
+    --destructive: 0 72% 58%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 224 25% 20%;
+    --input: 224 25% 20%;
+    --ring: 188 95% 47%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  ::selection {
+    background: rgba(34, 211, 238, 0.35);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .glass-highlight {
+    background:
+      linear-gradient(135deg, rgba(255,255,255,0.20), rgba(255,255,255,0.05)),
+      rgba(255,255,255,0.08);
+  }
+
+  .travel-grid {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px);
+    background-size: 42px 42px;
+  }
+}

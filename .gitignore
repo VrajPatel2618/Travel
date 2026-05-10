@@ -1,0 +1,12 @@
+node_modules
+.next
+out
+dist
+coverage
+.local-postgres
+*.log
+.env
+.env*.local
+!.env.example
+client/.next
+server/dist

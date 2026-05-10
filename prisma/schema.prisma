@@ -1,0 +1,359 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum TripStatus {
+  DRAFT
+  PLANNING
+  BOOKED
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+enum TripVisibility {
+  PRIVATE
+  PUBLIC
+  UNLISTED
+}
+
+enum ActivityCategory {
+  ADVENTURE
+  FOOD
+  BEACHES
+  HIKING
+  MUSEUMS
+  NIGHTLIFE
+  CULTURE
+  WELLNESS
+  SHOPPING
+  TRANSIT
+}
+
+enum BudgetCategory {
+  FLIGHTS
+  HOTELS
+  TRANSPORT
+  FOOD
+  ACTIVITIES
+  SHOPPING
+  INSURANCE
+  OTHER
+}
+
+enum PackingCategory {
+  CLOTHING
+  ELECTRONICS
+  DOCUMENTS
+  ESSENTIALS
+  TOILETRIES
+  MEDICAL
+  OTHER
+}
+
+enum NoteType {
+  JOURNAL
+  REMINDER
+  MEMORY
+}
+
+enum NotificationType {
+  SYSTEM
+  TRIP
+  BUDGET
+  SHARE
+  SECURITY
+}
+
+enum AuthTokenType {
+  REFRESH
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
+model User {
+  id              String             @id @default(cuid())
+  name            String
+  email           String             @unique
+  passwordHash    String
+  avatarUrl       String?
+  role            UserRole           @default(USER)
+  emailVerifiedAt DateTime?
+  preferences     Json?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  trips           Trip[]
+  notes           Note[]
+  authTokens      AuthToken[]
+  savedCities     SavedDestination[]
+  notifications   Notification[]
+  reviews         Review[]
+
+  @@index([role])
+  @@index([createdAt])
+}
+
+model AuthToken {
+  id        String        @id @default(cuid())
+  userId    String
+  tokenHash String        @unique
+  type      AuthTokenType
+  expiresAt DateTime
+  usedAt    DateTime?
+  revokedAt DateTime?
+  createdAt DateTime      @default(now())
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
+  @@index([expiresAt])
+}
+
+model City {
+  id                String             @id @default(cuid())
+  name              String
+  country           String
+  region            String?
+  latitude          Decimal?           @db.Decimal(9, 6)
+  longitude         Decimal?           @db.Decimal(9, 6)
+  imageUrl          String?
+  popularityScore   Int                @default(70)
+  costIndex         Int                @default(50)
+  weatherSummary    String?
+  bestMonths        String[]
+  description       String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  tripDestinations  TripDestination[]
+  activities        Activity[]
+  savedBy           SavedDestination[]
+
+  @@unique([name, country])
+  @@index([country])
+  @@index([popularityScore])
+  @@index([costIndex])
+}
+
+model Trip {
+  id              String             @id @default(cuid())
+  userId          String
+  title           String
+  description     String?
+  coverImageUrl   String?
+  startDate       DateTime
+  endDate         DateTime
+  budgetAmount    Decimal?           @db.Decimal(12, 2)
+  currency        String             @default("USD")
+  status          TripStatus         @default(PLANNING)
+  visibility      TripVisibility     @default(PRIVATE)
+  aiSummary       String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  destinations    TripDestination[]
+  budget          Budget?
+  packingList     PackingList?
+  notes           Note[]
+  sharedTrip      SharedTrip?
+
+  @@index([userId, status])
+  @@index([startDate, endDate])
+  @@index([visibility])
+}
+
+model TripDestination {
+  id              String         @id @default(cuid())
+  tripId          String
+  cityId          String
+  position        Int
+  startDate       DateTime
+  endDate         DateTime
+  stayNights      Int
+  transportMode   String?
+  transportCost   Decimal?       @db.Decimal(10, 2)
+  notes           String?
+  trip            Trip           @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  city            City           @relation(fields: [cityId], references: [id], onDelete: Restrict)
+  tripActivities  TripActivity[]
+  notesList       Note[]
+
+  @@unique([tripId, position])
+  @@index([tripId])
+  @@index([cityId])
+  @@index([startDate, endDate])
+}
+
+model Activity {
+  id              String           @id @default(cuid())
+  cityId          String?
+  title           String
+  category        ActivityCategory
+  durationMinutes Int
+  price           Decimal          @default(0) @db.Decimal(10, 2)
+  rating          Decimal          @default(4.5) @db.Decimal(2, 1)
+  description     String?
+  imageUrl        String?
+  provider        String?
+  externalUrl     String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  city            City?            @relation(fields: [cityId], references: [id], onDelete: SetNull)
+  tripActivities  TripActivity[]
+  reviews         Review[]
+
+  @@index([cityId])
+  @@index([category])
+  @@index([rating])
+}
+
+model TripActivity {
+  id                String              @id @default(cuid())
+  tripDestinationId String
+  activityId        String?
+  title             String
+  category          ActivityCategory
+  scheduledDate     DateTime
+  startTime         String?
+  durationMinutes   Int
+  estimatedCost     Decimal             @default(0) @db.Decimal(10, 2)
+  position          Int                  @default(0)
+  notes             String?
+  tripDestination   TripDestination     @relation(fields: [tripDestinationId], references: [id], onDelete: Cascade)
+  activity          Activity?           @relation(fields: [activityId], references: [id], onDelete: SetNull)
+
+  @@index([tripDestinationId, scheduledDate])
+  @@index([activityId])
+}
+
+model Budget {
+  id          String       @id @default(cuid())
+  tripId      String       @unique
+  currency    String       @default("USD")
+  totalLimit  Decimal      @db.Decimal(12, 2)
+  spentAmount Decimal      @default(0) @db.Decimal(12, 2)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  trip        Trip         @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  items       BudgetItem[]
+}
+
+model BudgetItem {
+  id          String         @id @default(cuid())
+  budgetId    String
+  category    BudgetCategory
+  name        String
+  amount      Decimal        @db.Decimal(10, 2)
+  plannedDate DateTime?
+  isPaid      Boolean        @default(false)
+  createdAt   DateTime       @default(now())
+  budget      Budget         @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+
+  @@index([budgetId, category])
+}
+
+model PackingList {
+  id        String        @id @default(cuid())
+  tripId    String        @unique
+  title     String        @default("Trip packing list")
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  trip      Trip          @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  items     PackingItem[]
+}
+
+model PackingItem {
+  id            String          @id @default(cuid())
+  packingListId String
+  category      PackingCategory
+  name          String
+  quantity      Int             @default(1)
+  isPacked      Boolean         @default(false)
+  createdAt     DateTime        @default(now())
+  packingList   PackingList     @relation(fields: [packingListId], references: [id], onDelete: Cascade)
+
+  @@index([packingListId, category])
+}
+
+model Note {
+  id                String           @id @default(cuid())
+  userId            String
+  tripId            String?
+  tripDestinationId String?
+  type              NoteType         @default(JOURNAL)
+  title             String
+  content           String
+  images            Json?
+  dayIndex          Int?
+  reminderAt        DateTime?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trip              Trip?            @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  tripDestination   TripDestination? @relation(fields: [tripDestinationId], references: [id], onDelete: SetNull)
+
+  @@index([userId, type])
+  @@index([tripId])
+}
+
+model SharedTrip {
+  id          String    @id @default(cuid())
+  tripId      String    @unique
+  slug        String    @unique
+  isPublic    Boolean   @default(true)
+  viewCount   Int       @default(0)
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  trip        Trip      @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([slug, isPublic])
+}
+
+model SavedDestination {
+  id        String   @id @default(cuid())
+  userId    String
+  cityId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  city      City     @relation(fields: [cityId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, cityId])
+  @@index([cityId])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  body      String
+  readAt    DateTime?
+  metadata  Json?
+  createdAt DateTime         @default(now())
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+}
+
+model Review {
+  id         String    @id @default(cuid())
+  userId     String
+  activityId String
+  rating     Int
+  comment    String?
+  createdAt  DateTime  @default(now())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activity   Activity  @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, activityId])
+  @@index([activityId])
+}

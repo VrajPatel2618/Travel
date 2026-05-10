@@ -1,0 +1,37 @@
+{
+  "name": "traveloop-platform",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n client,server -c cyan,magenta \"npm run dev --workspace client\" \"npm run dev --workspace server\"",
+    "dev:client": "npm run dev --workspace client",
+    "dev:server": "npm run dev --workspace server",
+    "build": "npm run db:generate && npm run build --workspace server && npm run build --workspace client",
+    "build:client": "npm run build --workspace client",
+    "build:server": "npm run build --workspace server",
+    "typecheck": "npm run typecheck --workspace server && npm run typecheck --workspace client",
+    "db:generate": "prisma generate --schema prisma/schema.prisma",
+    "db:migrate": "prisma migrate dev --schema prisma/schema.prisma",
+    "db:deploy": "prisma migrate deploy --schema prisma/schema.prisma",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:studio": "prisma studio --schema prisma/schema.prisma",
+    "lint": "npm run lint --workspace client",
+    "test": "node --import tsx --test \"client/**/*.test.ts\" \"server/**/*.test.ts\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "prisma": "^6.2.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "compose": "^0.1.2",
+    "docker": "^1.0.0",
+    "up": "^1.0.2"
+  }
+}
